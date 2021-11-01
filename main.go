@@ -14,7 +14,21 @@ var configPath = flag.String("config", "config.local.yaml", "config path")
 func main() {
 	config.NewConfig(*configPath)
 	app := cdk8s.NewApp(nil)
-	chart.NewServiceChart(app, config.Cfg.App+"-"+config.Cfg.Service, &cdk8s.ChartProps{
+	chart.NewServiceChart(app, config.Cfg.App+"-"+config.Cfg.Service+"-service", &cdk8s.ChartProps{
+		Labels: &map[string]*string{
+			"app":     &config.Cfg.Service,
+			"version": &config.Cfg.Version,
+		},
+		Namespace: &config.Cfg.Namespace,
+	})
+	chart.NewWorkloadChart(app, config.Cfg.App+"-"+config.Cfg.Service+"-workload", &cdk8s.ChartProps{
+		Labels: &map[string]*string{
+			"app":     &config.Cfg.Service,
+			"version": &config.Cfg.Version,
+		},
+		Namespace: &config.Cfg.Namespace,
+	})
+	chart.NewConfigmapChart(app, config.Cfg.App+"-"+config.Cfg.Service+"-configmap", &cdk8s.ChartProps{
 		Labels: &map[string]*string{
 			"app":     &config.Cfg.Service,
 			"version": &config.Cfg.Version,

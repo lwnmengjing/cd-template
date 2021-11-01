@@ -22,3 +22,5 @@ cd-template-go
 .DS_Store
 
 *.local.yaml
+
+dist/

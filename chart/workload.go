@@ -20,6 +20,7 @@ func NewWorkloadChart(scope constructs.Construct, id string, props *cdk8s.ChartP
 	chart := cdk8s.NewChart(scope, jsii.String(id), props)
 	workloadName := config.Cfg.Service + "-" + config.Cfg.Version
 	ports := make([]*k8s.ContainerPort, 0)
+	//port
 	var samePort bool
 	for i := range config.Cfg.Ports {
 		samePort = !config.Cfg.Metrics.Scrape || config.Cfg.Ports[i].Port == config.Cfg.Metrics.Port
@@ -32,6 +33,7 @@ func NewWorkloadChart(scope constructs.Construct, id string, props *cdk8s.ChartP
 			ContainerPort: jsii.Number(float64(config.Cfg.Metrics.Port)),
 		})
 	}
+	//env
 	env := make([]*k8s.EnvVar, len(config.Cfg.ImportEnvNames))
 	for i := range config.Cfg.ImportEnvNames {
 		v := os.Getenv(config.Cfg.ImportEnvNames[i])
@@ -39,6 +41,32 @@ func NewWorkloadChart(scope constructs.Construct, id string, props *cdk8s.ChartP
 			Name:  &config.Cfg.ImportEnvNames[i],
 			Value: &v,
 		}
+	}
+	//config
+	volumeMounts := make([]*k8s.VolumeMount, 0)
+	volumes := make([]*k8s.Volume, len(config.Cfg.ConfigData))
+	if len(config.Cfg.ConfigData) > 0 {
+		readOnly := true
+		for i := range config.Cfg.ConfigData {
+			volumes[i] = &k8s.Volume{
+				Name: &config.Cfg.ConfigData[i].Name,
+				ConfigMap: &k8s.ConfigMapVolumeSource{
+					Name: &config.Cfg.ConfigData[i].Name,
+				},
+			}
+
+			for path := range config.Cfg.ConfigData[i].Data {
+				volumeMounts = append(volumeMounts, &k8s.VolumeMount{
+					MountPath: &path,
+					Name:      &config.Cfg.ConfigData[i].Name,
+					ReadOnly:  &readOnly,
+				})
+			}
+		}
+	}
+	serviceAccountName := ""
+	if config.Cfg.ServiceAccount {
+		serviceAccountName = config.Cfg.App + "-" + config.Cfg.Service
 	}
 	switch config.Cfg.WorkloadType {
 	default:
@@ -58,12 +86,15 @@ func NewWorkloadChart(scope constructs.Construct, id string, props *cdk8s.ChartP
 						Labels: props.Labels,
 					},
 					Spec: &k8s.PodSpec{
+						ServiceAccountName: &serviceAccountName,
 						Containers: &[]*k8s.Container{{
-							Name:  jsii.String(config.Cfg.Service),
-							Image: jsii.String(config.Cfg.Image.String()),
-							Ports: &ports,
-							Env:   &env,
+							Name:         jsii.String(config.Cfg.Service),
+							Image:        jsii.String(config.Cfg.Image.String()),
+							Ports:        &ports,
+							Env:          &env,
+							VolumeMounts: &volumeMounts,
 						}},
+						Volumes: &volumes,
 					},
 				},
 			},

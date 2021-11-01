@@ -1,0 +1,46 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup
+        uses: actions/setup-go@v2
+        with:
+          go-version: '1.17'
+      - name: Build Linux
+        env:
+          CGO_ENABLED: 0
+          GOOS: linux
+          GOARCH: amd64
+        run: go build -o cd-template .
+
+      - name: Build Windows
+        env:
+          CGO_ENABLED: 0
+          GOOS: windows
+          GOARCH: amd64
+        run: go build -o cd-template.exe .
+
+      - name: Tar
+        run: |
+          tar -zcvf linux_amd64.tar.gz ./cd-template
+          tar -zcvf windows_amd64.tar.gz ./cd-template.exe
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            linux_amd64.tar.gz
+            windows_amd64.tar.gz

@@ -21,6 +21,7 @@ type Config struct {
 	Service        string          `json:"service" yaml:"service"`
 	Version        string          `json:"version" yaml:"version"`
 	Replicas       uint            `json:"replicas" yaml:"replicas"`
+	ServiceAccount bool            `json:"serviceAccount" yaml:"serviceAccount"`
 	Image          Image           `json:"image" yaml:"image"`
 	Ports          []Port          `json:"ports" yaml:"ports"`
 	Metrics        Metrics         `json:"metrics" yaml:"metrics"`
@@ -55,6 +56,7 @@ type Metrics struct {
 }
 
 type ConfigmapData struct {
+	Name string            `json:"name" yaml:"name"`
 	Path string            `json:"path" yaml:"path"`
 	Data map[string]string `json:"data" yaml:"data"`
 }
