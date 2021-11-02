@@ -8,6 +8,7 @@
 package config
 
 import (
+	"flag"
 	"gopkg.in/yaml.v3"
 	"io/ioutil"
 	"log"
@@ -61,6 +62,12 @@ type ConfigmapData struct {
 	Data map[string]string `json:"data" yaml:"data"`
 }
 
+var namespace = flag.String("namespace", "default", "deploy namespace")
+
+func init() {
+
+}
+
 // NewConfig set config
 func NewConfig(path string) {
 	rb, err := ioutil.ReadFile(path)
@@ -70,5 +77,8 @@ func NewConfig(path string) {
 	err = yaml.Unmarshal(rb, &Cfg)
 	if err != nil {
 		log.Fatalln(err)
+	}
+	if !(namespace == nil || *namespace == "") {
+		Cfg.Namespace = *namespace
 	}
 }

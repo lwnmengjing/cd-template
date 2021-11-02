@@ -64,9 +64,9 @@ func NewWorkloadChart(scope constructs.Construct, id string, props *cdk8s.ChartP
 			}
 		}
 	}
-	serviceAccountName := ""
+	var serviceAccountName *string
 	if config.Cfg.ServiceAccount {
-		serviceAccountName = config.Cfg.App + "-" + config.Cfg.Service
+		serviceAccountName = jsii.String(config.Cfg.App + "-" + config.Cfg.Service)
 	}
 	switch config.Cfg.WorkloadType {
 	default:
@@ -86,7 +86,7 @@ func NewWorkloadChart(scope constructs.Construct, id string, props *cdk8s.ChartP
 						Labels: props.Labels,
 					},
 					Spec: &k8s.PodSpec{
-						ServiceAccountName: &serviceAccountName,
+						ServiceAccountName: serviceAccountName,
 						Containers: &[]*k8s.Container{{
 							Name:         jsii.String(config.Cfg.Service),
 							Image:        jsii.String(config.Cfg.Image.String()),

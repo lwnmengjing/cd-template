@@ -1,0 +1,29 @@
+app: cd
+service: deploy
+namespace: beta
+version: v1
+replicas: 1
+serviceAccount: false
+image:
+  path: test
+  tag: latest
+ports:
+  - port: 8000
+    targetPort: 8000
+    name: http
+metrics:
+  scrape: true
+  path: /metrics
+  port: 8000
+importEnvNames:
+  - stage
+  - other
+configData:
+  - name: deploy-config
+    path: workdir/config
+    data:
+      config1.yaml: |
+        dafjlkdjaskfjdklasjfkldasj
+        asdfkasjdfklajsd
+        asdfasdfa
+workloadType: deployment

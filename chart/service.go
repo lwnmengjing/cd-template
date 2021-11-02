@@ -44,5 +44,16 @@ func NewServiceChart(scope constructs.Construct, id string, props *cdk8s.ChartPr
 		},
 	})
 
+	if !config.Cfg.ServiceAccount {
+		return chart
+	}
+	k8s.NewKubeServiceAccount(chart, jsii.String("service-account"), &k8s.KubeServiceAccountProps{
+		Metadata: &k8s.ObjectMeta{
+			Name:      jsii.String(config.Cfg.App + "-" + config.Cfg.Service),
+			Namespace: props.Namespace,
+			Labels:    props.Labels,
+		},
+	})
+
 	return chart
 }
