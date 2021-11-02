@@ -9,9 +9,10 @@ package config
 
 import (
 	"flag"
-	"gopkg.in/yaml.v3"
-	"io/ioutil"
 	"log"
+	"strings"
+
+	"github.com/lwnmengjing/core-go/config"
 )
 
 var Cfg Config
@@ -28,7 +29,9 @@ type Config struct {
 	Metrics        Metrics         `json:"metrics" yaml:"metrics"`
 	ImportEnvNames []string        `json:"importEnvNames" yaml:"importEnvNames"`
 	ConfigData     []ConfigmapData `json:"configData" yaml:"configData"`
-	WorkloadType   string          `json:"workloadType"`
+	WorkloadType   string          `json:"workloadType" yaml:"workloadType"`
+	Command        []*string       `json:"command" yaml:"command"`
+	Args           []*string       `json:"args" yaml:"args"`
 }
 
 type Port struct {
@@ -62,23 +65,50 @@ type ConfigmapData struct {
 	Data map[string]string `json:"data" yaml:"data"`
 }
 
-var namespace = flag.String("namespace", "default", "deploy namespace")
-
-func init() {
-
-}
+var (
+	namespace      = flag.String("namespace", "default", "deploy namespace")
+	app            = flag.String("app", "", "application")
+	service        = flag.String("service", "", "service")
+	version        = flag.String("version", "v1", "service version")
+	port           = flag.Uint("port", 8000, "port")
+	portName       = flag.String("portName", "http", "port name")
+	image          = flag.String("image", "", "image:tag")
+	importEnvNames = flag.String("importEnvNames", "", "import env names, split ','")
+)
 
 // NewConfig set config
-func NewConfig(path string) {
-	rb, err := ioutil.ReadFile(path)
+func NewConfig(path *string) {
+	var err error
+	config.DefaultConfig, err = config.NewConfig()
 	if err != nil {
 		log.Fatalln(err)
 	}
-	err = yaml.Unmarshal(rb, &Cfg)
-	if err != nil {
-		log.Fatalln(err)
+	if path != nil && *path != "" {
+		err = config.LoadFile(*path)
+		if err != nil {
+			log.Fatalln(err)
+		}
+		err = config.Scan(&Cfg)
+		if err != nil {
+			log.Fatalln(err)
+		}
 	}
-	if !(namespace == nil || *namespace == "") {
-		Cfg.Namespace = *namespace
+
+	Cfg.Namespace = config.Get("namespace").String(*namespace)
+	Cfg.App = config.Get("app").String(*app)
+	Cfg.Service = config.Get("service").String(*service)
+	if len(Cfg.Ports) == 0 {
+		Cfg.Ports = []Port{
+			{
+				Port:       *port,
+				Name:       *portName,
+				TargetPort: *port,
+			},
+		}
+	}
+	Cfg.Image.Path = config.Get("image", "path").String(*image)
+	Cfg.Version = config.Get("version").String(*version)
+	if len(Cfg.ImportEnvNames) == 0 {
+		Cfg.ImportEnvNames = strings.Split(*importEnvNames, ",")
 	}
 }

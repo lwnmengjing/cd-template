@@ -9,10 +9,11 @@ import (
 	"github.com/lwnmengjing/cd-template-go/pkg/config"
 )
 
-var configPath = flag.String("config", "config.local.yaml", "config path")
+var configPath = flag.String("config", "", "config path")
 
 func main() {
-	config.NewConfig(*configPath)
+	flag.Parse()
+	config.NewConfig(configPath)
 	app := cdk8s.NewApp(nil)
 	chart.NewServiceChart(app, config.Cfg.App+"-"+config.Cfg.Service+"-service", &cdk8s.ChartProps{
 		Labels: &map[string]*string{

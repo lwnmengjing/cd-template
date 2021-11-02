@@ -64,9 +64,19 @@ func NewWorkloadChart(scope constructs.Construct, id string, props *cdk8s.ChartP
 			}
 		}
 	}
+
 	var serviceAccountName *string
 	if config.Cfg.ServiceAccount {
 		serviceAccountName = jsii.String(config.Cfg.App + "-" + config.Cfg.Service)
+	}
+	var command *[]*string
+	if len(config.Cfg.Command) > 0 {
+
+		command = &config.Cfg.Command
+	}
+	var args *[]*string
+	if len(config.Cfg.Args) > 0 {
+		args = &config.Cfg.Args
 	}
 	switch config.Cfg.WorkloadType {
 	default:
@@ -93,6 +103,8 @@ func NewWorkloadChart(scope constructs.Construct, id string, props *cdk8s.ChartP
 							Ports:        &ports,
 							Env:          &env,
 							VolumeMounts: &volumeMounts,
+							Command:      command,
+							Args:         args,
 						}},
 						Volumes: &volumes,
 					},

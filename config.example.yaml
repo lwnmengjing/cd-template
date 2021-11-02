@@ -4,6 +4,13 @@ namespace: beta
 version: v1
 replicas: 1
 serviceAccount: false
+command:
+  - test
+  - "1234"
+args:
+  - "1"
+  - "2"
+  - "3"
 image:
   path: test
   tag: latest
