@@ -26,11 +26,11 @@ importEnvNames:
   - stage
   - other
 configData:
-  - name: deploy-config
-    path: workdir/config
-    data:
-      config1.yaml: |
-        dafjlkdjaskfjdklasjfkldasj
-        asdfkasjdfklajsd
-        asdfasdfa
-workloadType: deployment
+  name: deploy-config
+  path: workdir/config
+  data:
+    config1.yaml: |
+      dafjlkdjaskfjdklasjfkldasj
+      asdfkasjdfklajsd
+      asdfasdfa
+workloadType: statefulset

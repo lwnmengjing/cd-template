@@ -22,14 +22,14 @@ func main() {
 		},
 		Namespace: &config.Cfg.Namespace,
 	})
-	chart.NewWorkloadChart(app, config.Cfg.App+"-"+config.Cfg.Service+"-workload", &cdk8s.ChartProps{
+	chart.NewConfigmapChart(app, config.Cfg.App+"-"+config.Cfg.Service+"-configmap", &cdk8s.ChartProps{
 		Labels: &map[string]*string{
 			"app":     &config.Cfg.Service,
 			"version": &config.Cfg.Version,
 		},
 		Namespace: &config.Cfg.Namespace,
 	})
-	chart.NewConfigmapChart(app, config.Cfg.App+"-"+config.Cfg.Service+"-configmap", &cdk8s.ChartProps{
+	chart.NewWorkloadChart(app, config.Cfg.App+"-"+config.Cfg.Service+"-workload", &cdk8s.ChartProps{
 		Labels: &map[string]*string{
 			"app":     &config.Cfg.Service,
 			"version": &config.Cfg.Version,

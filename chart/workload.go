@@ -44,24 +44,22 @@ func NewWorkloadChart(scope constructs.Construct, id string, props *cdk8s.ChartP
 	}
 	//config
 	volumeMounts := make([]*k8s.VolumeMount, 0)
-	volumes := make([]*k8s.Volume, len(config.Cfg.ConfigData))
-	if len(config.Cfg.ConfigData) > 0 {
+	volumes := make([]*k8s.Volume, 0)
+	if len(config.Cfg.ConfigData.Data) > 0 {
 		readOnly := true
-		for i := range config.Cfg.ConfigData {
-			volumes[i] = &k8s.Volume{
-				Name: &config.Cfg.ConfigData[i].Name,
-				ConfigMap: &k8s.ConfigMapVolumeSource{
-					Name: &config.Cfg.ConfigData[i].Name,
-				},
-			}
+		volumes = append(volumes, &k8s.Volume{
+			Name: &config.Cfg.ConfigData.Name,
+			ConfigMap: &k8s.ConfigMapVolumeSource{
+				Name: &config.Cfg.ConfigData.Name,
+			},
+		})
 
-			for path := range config.Cfg.ConfigData[i].Data {
-				volumeMounts = append(volumeMounts, &k8s.VolumeMount{
-					MountPath: &path,
-					Name:      &config.Cfg.ConfigData[i].Name,
-					ReadOnly:  &readOnly,
-				})
-			}
+		for path := range config.Cfg.ConfigData.Data {
+			volumeMounts = append(volumeMounts, &k8s.VolumeMount{
+				MountPath: &path,
+				Name:      &config.Cfg.ConfigData.Name,
+				ReadOnly:  &readOnly,
+			})
 		}
 	}
 
@@ -79,6 +77,39 @@ func NewWorkloadChart(scope constructs.Construct, id string, props *cdk8s.ChartP
 		args = &config.Cfg.Args
 	}
 	switch config.Cfg.WorkloadType {
+	case "statefulset":
+		k8s.NewKubeStatefulSet(chart, jsii.String("statefulset"), &k8s.KubeStatefulSetProps{
+			Metadata: &k8s.ObjectMeta{
+				Name:      &workloadName,
+				Namespace: &config.Cfg.Namespace,
+				Labels:    props.Labels,
+			},
+			Spec: &k8s.StatefulSetSpec{
+				ServiceName: &config.Cfg.Service,
+				Replicas:    jsii.Number(float64(config.Cfg.Replicas)),
+				Selector: &k8s.LabelSelector{
+					MatchLabels: props.Labels,
+				},
+				Template: &k8s.PodTemplateSpec{
+					Metadata: &k8s.ObjectMeta{
+						Labels: props.Labels,
+					},
+					Spec: &k8s.PodSpec{
+						ServiceAccountName: serviceAccountName,
+						Containers: &[]*k8s.Container{{
+							Name:         jsii.String(config.Cfg.Service),
+							Image:        jsii.String(config.Cfg.Image.String()),
+							Ports:        &ports,
+							Env:          &env,
+							VolumeMounts: &volumeMounts,
+							Command:      command,
+							Args:         args,
+						}},
+						Volumes: &volumes,
+					},
+				},
+			},
+		})
 	default:
 		k8s.NewKubeDeployment(chart, jsii.String("deployment"), &k8s.KubeDeploymentProps{
 			Metadata: &k8s.ObjectMeta{
