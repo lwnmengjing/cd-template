@@ -60,8 +60,6 @@ jobs:
           tar -zcvf ${GOOS}_${GOARCH}.tar.gz ./${app}
           rm -rf ./${app}
           mv ${GOOS}_${GOARCH}.tar.gz artifact
-          pwd
-          ls
 
       - name: Upload
         uses: actions/upload-artifact@v2
