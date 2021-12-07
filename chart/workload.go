@@ -92,6 +92,10 @@ func NewWorkloadChart(scope constructs.Construct, id string, props *cdk8s.ChartP
 			}
 		}
 	}
+	var replicas *float64
+	if !config.Cfg.Hpa {
+		replicas = jsii.Number(float64(config.Cfg.Replicas))
+	}
 	switch config.Cfg.WorkloadType {
 	case "statefulset":
 		k8s.NewKubeStatefulSet(chart, jsii.String("statefulset"), &k8s.KubeStatefulSetProps{
@@ -102,7 +106,7 @@ func NewWorkloadChart(scope constructs.Construct, id string, props *cdk8s.ChartP
 			},
 			Spec: &k8s.StatefulSetSpec{
 				ServiceName: &config.Cfg.Service,
-				Replicas:    jsii.Number(float64(config.Cfg.Replicas)),
+				Replicas:    replicas,
 				Selector: &k8s.LabelSelector{
 					MatchLabels: props.Labels,
 				},
@@ -135,7 +139,7 @@ func NewWorkloadChart(scope constructs.Construct, id string, props *cdk8s.ChartP
 				Labels:    props.Labels,
 			},
 			Spec: &k8s.DeploymentSpec{
-				Replicas: jsii.Number(float64(config.Cfg.Replicas)),
+				Replicas: replicas,
 				Selector: &k8s.LabelSelector{
 					MatchLabels: props.Labels,
 				},
