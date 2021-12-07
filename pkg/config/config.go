@@ -19,20 +19,28 @@ import (
 var Cfg Config
 
 type Config struct {
-	Namespace      string        `json:"namespace" yaml:"namespace"`
-	App            string        `json:"app" yaml:"app"`
-	Service        string        `json:"service" yaml:"service"`
-	Version        string        `json:"version" yaml:"version"`
-	Replicas       uint          `json:"replicas" yaml:"replicas"`
-	ServiceAccount bool          `json:"serviceAccount" yaml:"serviceAccount"`
-	Image          Image         `json:"image" yaml:"image"`
-	Ports          []Port        `json:"ports" yaml:"ports"`
-	Metrics        Metrics       `json:"metrics" yaml:"metrics"`
-	ImportEnvNames []string      `json:"importEnvNames" yaml:"importEnvNames"`
-	ConfigData     ConfigmapData `json:"configData" yaml:"configData"`
-	WorkloadType   string        `json:"workloadType" yaml:"workloadType"`
-	Command        []*string     `json:"command" yaml:"command"`
-	Args           []*string     `json:"args" yaml:"args"`
+	Namespace      string              `json:"namespace" yaml:"namespace"`
+	App            string              `json:"app" yaml:"app"`
+	Service        string              `json:"service" yaml:"service"`
+	Version        string              `json:"version" yaml:"version"`
+	Hpa            bool                `json:"hpa" yaml:"hpa"`
+	Resources      map[string]Resource `json:"resources" yaml:"resoures"`
+	Replicas       uint                `json:"replicas" yaml:"replicas"`
+	MaxReplicas    uint                `json:"maxReplicas" yaml:"maxReplicas"`
+	ServiceAccount bool                `json:"serviceAccount" yaml:"serviceAccount"`
+	Image          Image               `json:"image" yaml:"image"`
+	Ports          []Port              `json:"ports" yaml:"ports"`
+	Metrics        Metrics             `json:"metrics" yaml:"metrics"`
+	ImportEnvNames []string            `json:"importEnvNames" yaml:"importEnvNames"`
+	ConfigData     ConfigmapData       `json:"configData" yaml:"configData"`
+	WorkloadType   string              `json:"workloadType" yaml:"workloadType"`
+	Command        []*string           `json:"command" yaml:"command"`
+	Args           []*string           `json:"args" yaml:"args"`
+}
+
+type Resource struct {
+	CPU    string `json:"cpu" yaml:"cpu"`
+	Memory string `json:"memory" yaml:"memory"`
 }
 
 type Port struct {
@@ -76,7 +84,10 @@ var (
 	image           = flag.String("image", "", "image:tag")
 	importEnvNames  = flag.String("importEnvNames", "", "import env names, split ','")
 	configDataFiles = flag.String("configDataFiles", "", "config data file path, multi split ','")
+	configPath      = flag.String("configPath", "", "application config path")
 	replicas        = flag.Uint("replicas", 1, "replicas")
+	workloadType    = flag.String("workloadType", "deployment", "workload type, e.g. deployment, statefulset")
+	hpa             = flag.Bool("hpa", false, "enable hpa")
 )
 
 // NewConfig set config
@@ -121,8 +132,29 @@ func NewConfig(path *string) {
 		for _, p := range strings.Split(*configDataFiles, ",") {
 			Cfg.ConfigData.Data[filepath.Base(p)] = p
 		}
+		if configPath != nil && *configPath != "" {
+			Cfg.ConfigData.Path = *configPath
+		}
 	}
 	if Cfg.Replicas < 1 {
 		Cfg.Replicas = *replicas
+	}
+	if Cfg.MaxReplicas < Cfg.Replicas {
+		Cfg.MaxReplicas = Cfg.Replicas * 3
+	}
+	if workloadType != nil && (Cfg.WorkloadType == "" || *workloadType != "deployment") {
+		Cfg.WorkloadType = *workloadType
+	}
+	if hpa != nil && *hpa {
+		Cfg.Hpa = *hpa
+	}
+
+	if len(Cfg.Resources) == 0 {
+		Cfg.Resources = map[string]Resource{
+			"limits": {
+				CPU:    "800m",
+				Memory: "800Mi",
+			},
+		}
 	}
 }

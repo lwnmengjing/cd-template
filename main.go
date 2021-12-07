@@ -36,5 +36,14 @@ func main() {
 		},
 		Namespace: &config.Cfg.Namespace,
 	})
+	if config.Cfg.Hpa {
+		chart.NewHpaChart(app, config.Cfg.App+"-"+config.Cfg.Service+"-hpa", &cdk8s.ChartProps{
+			Labels: &map[string]*string{
+				"app":     &config.Cfg.Service,
+				"version": &config.Cfg.Version,
+			},
+			Namespace: &config.Cfg.Namespace,
+		})
+	}
 	app.Synth()
 }

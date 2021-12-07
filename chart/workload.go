@@ -54,13 +54,11 @@ func NewWorkloadChart(scope constructs.Construct, id string, props *cdk8s.ChartP
 			},
 		})
 
-		for path := range config.Cfg.ConfigData.Data {
-			volumeMounts = append(volumeMounts, &k8s.VolumeMount{
-				MountPath: &path,
-				Name:      &config.Cfg.ConfigData.Name,
-				ReadOnly:  &readOnly,
-			})
-		}
+		volumeMounts = append(volumeMounts, &k8s.VolumeMount{
+			MountPath: &config.Cfg.ConfigData.Path,
+			Name:      &config.Cfg.ConfigData.Name,
+			ReadOnly:  &readOnly,
+		})
 	}
 
 	var serviceAccountName *string
@@ -75,6 +73,24 @@ func NewWorkloadChart(scope constructs.Construct, id string, props *cdk8s.ChartP
 	var args *[]*string
 	if len(config.Cfg.Args) > 0 {
 		args = &config.Cfg.Args
+	}
+
+	var resources k8s.ResourceRequirements
+	if len(config.Cfg.Resources) > 0 {
+		for k, r := range config.Cfg.Resources {
+			switch k {
+			case "limits":
+				resources.Limits = &map[string]k8s.Quantity{
+					"cpu":    k8s.Quantity_FromString(&r.CPU),
+					"memory": k8s.Quantity_FromString(&r.Memory),
+				}
+			default:
+				resources.Requests = &map[string]k8s.Quantity{
+					"cpu":    k8s.Quantity_FromString(&r.CPU),
+					"memory": k8s.Quantity_FromString(&r.Memory),
+				}
+			}
+		}
 	}
 	switch config.Cfg.WorkloadType {
 	case "statefulset":
@@ -104,6 +120,7 @@ func NewWorkloadChart(scope constructs.Construct, id string, props *cdk8s.ChartP
 							VolumeMounts: &volumeMounts,
 							Command:      command,
 							Args:         args,
+							Resources:    &resources,
 						}},
 						Volumes: &volumes,
 					},
@@ -136,6 +153,7 @@ func NewWorkloadChart(scope constructs.Construct, id string, props *cdk8s.ChartP
 							VolumeMounts: &volumeMounts,
 							Command:      command,
 							Args:         args,
+							Resources:    &resources,
 						}},
 						Volumes: &volumes,
 					},
