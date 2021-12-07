@@ -15,5 +15,5 @@ OR
   run: |
     curl -O https://lwnmengjing.github.io/cd-template/latest/linux_amd64.tar.gz
     tar -zxvf linux_amd64.tar.gz 
-    ./cd-template --namespace=prod --app=cd --service=temp --image=werrerw:v1 --image=dasdfasdfasdf --importEnvNames=STAGE
+    ./cd-template --namespace=prod --app=cd --service=temp --image=werrerw:v1 --configDataFiles=./cfg.local.yaml --importEnvNames=STAGE
 ```
