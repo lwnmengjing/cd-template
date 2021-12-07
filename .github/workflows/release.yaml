@@ -43,6 +43,8 @@ jobs:
         uses: actions/setup-go@v2
         with:
           go-version: '1.17'
+      - name: New Artifact Dir
+        run: mkdir artifact
       - name: Build ${{ matrix.os }}
         env:
           CGO_ENABLED: 0
@@ -54,27 +56,45 @@ jobs:
           else
             export app=cd-template
           fi
-            go build -o ${app} .;
-            tar -zcvf ${GOOS}_amd64.tar.gz ./${app}
-            rm -rf ./${app}
+          go build -o ${app} .
+          tar -zcvf ${GOOS}_${GOARCH}.tar.gz ./${app}
+          rm -rf ./${app}
+          mv ${GOOS}_${GOARCH}.tar.gz artifact
+          pwd
+          ls
+
+      - name: Upload
+        uses: actions/upload-artifact@v2
+        env:
+          CGO_ENABLED: 0
+          GOOS: ${{ matrix.os }}
+          GOARCH: amd64
+        with:
+          name: ${{ needs.tag.outputs.tag }}
+          path: ${{ github.workspace }}/artifact
+          if-no-files-found: error
+
+  release:
+    runs-on: ubuntu-latest
+    needs: [tag, pages]
+    steps:
+      - uses: actions/checkout@v2
 
       - name: New Public
         run: mkdir -p public/${{ needs.tag.outputs.tag }}
 
-      - name:  MV To Public
-        env:
-          GOOS: ${{ matrix.os }}
-        run: |
-          mv ${GOOS}_amd64.tar.gz ./public/${{ needs.tag.outputs.tag }}/
+      - name: download binary
+        uses: actions/download-artifact@v2
+        with:
+          name: ${{ needs.tag.outputs.tag }}
+          path: public/${{ needs.tag.outputs.tag }}
 
       - name: Create Readme
         run:
           cp README.md ./public/
-
       - name: Create latest
         run:
           cp -r ./public/${{ needs.tag.outputs.tag }} ./public/latest
-
       - name: Push Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
@@ -82,15 +102,6 @@ jobs:
           publish_dir: ./public
           keep_files: true
 
-  release:
-    runs-on: ubuntu-latest
-    needs: [tag, pages]
-    steps:
-      - name: Get Binary
-        run: |
-          curl -O https://lwnmengjing.github.io/cd-template/${{ needs.tag.outputs.tag }}/linux_amd64.tar.gz
-          curl -O https://lwnmengjing.github.io/cd-template/${{ needs.tag.outputs.tag }}/windows_amd64.tar.gz
-          curl -O https://lwnmengjing.github.io/cd-template/${{ needs.tag.outputs.tag }}/darwin_amd64.tar.gz
       - name: Release
         uses: softprops/action-gh-release@v1
         with:

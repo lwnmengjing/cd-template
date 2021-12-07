@@ -10,6 +10,7 @@ package config
 import (
 	"flag"
 	"log"
+	"path/filepath"
 	"strings"
 
 	"github.com/lwnmengjing/core-go/config"
@@ -66,14 +67,16 @@ type ConfigmapData struct {
 }
 
 var (
-	namespace      = flag.String("namespace", "default", "deploy namespace")
-	app            = flag.String("app", "", "application")
-	service        = flag.String("service", "", "service")
-	version        = flag.String("version", "v1", "service version")
-	port           = flag.Uint("port", 8000, "port")
-	portName       = flag.String("portName", "http", "port name")
-	image          = flag.String("image", "", "image:tag")
-	importEnvNames = flag.String("importEnvNames", "", "import env names, split ','")
+	namespace       = flag.String("namespace", "default", "deploy namespace")
+	app             = flag.String("app", "", "application")
+	service         = flag.String("service", "", "service")
+	version         = flag.String("version", "v1", "service version")
+	port            = flag.Uint("port", 8000, "port")
+	portName        = flag.String("portName", "http", "port name")
+	image           = flag.String("image", "", "image:tag")
+	importEnvNames  = flag.String("importEnvNames", "", "import env names, split ','")
+	configDataFiles = flag.String("configDataFiles", "", "config data file path, multi split ','")
+	replicas        = flag.Uint("replicas", 1, "replicas")
 )
 
 // NewConfig set config
@@ -110,5 +113,16 @@ func NewConfig(path *string) {
 	Cfg.Version = config.Get("version").String(*version)
 	if len(Cfg.ImportEnvNames) == 0 {
 		Cfg.ImportEnvNames = strings.Split(*importEnvNames, ",")
+	}
+	if configDataFiles != nil && *configDataFiles != "" {
+		if Cfg.ConfigData.Data == nil {
+			Cfg.ConfigData.Data = make(map[string]string)
+		}
+		for _, p := range strings.Split(*configDataFiles, ",") {
+			Cfg.ConfigData.Data[filepath.Base(p)] = p
+		}
+	}
+	if Cfg.Replicas < 1 {
+		Cfg.Replicas = *replicas
 	}
 }
