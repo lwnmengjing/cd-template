@@ -79,8 +79,8 @@ var (
 	app             = flag.String("app", "", "application")
 	service         = flag.String("service", "", "service")
 	version         = flag.String("version", "v1", "service version")
-	port            = flag.Uint("port", 8000, "port")
-	portName        = flag.String("portName", "http", "port name")
+	httpPort        = flag.Uint("httpPort", 0, "http server listen port")
+	grpcPort        = flag.Uint("grpcPort", 0, "grpc server listen port")
 	image           = flag.String("image", "", "image:tag")
 	importEnvNames  = flag.String("importEnvNames", "", "import env names, split ','")
 	configDataFiles = flag.String("configDataFiles", "", "config data file path, multi split ','")
@@ -111,14 +111,23 @@ func NewConfig(path *string) {
 	Cfg.Namespace = config.Get("namespace").String(*namespace)
 	Cfg.App = config.Get("app").String(*app)
 	Cfg.Service = config.Get("service").String(*service)
-	if len(Cfg.Ports) == 0 {
-		Cfg.Ports = []Port{
-			{
-				Port:       *port,
-				Name:       *portName,
-				TargetPort: *port,
-			},
+	if len(Cfg.Ports) == 0 && (*httpPort > 0 || *grpcPort > 0) {
+		Cfg.Ports = make([]Port, 0)
+		if *httpPort > 0 {
+			Cfg.Ports = append(Cfg.Ports, Port{
+				Port:       *httpPort,
+				Name:       "http",
+				TargetPort: *httpPort,
+			})
 		}
+		if *grpcPort > 0 {
+			Cfg.Ports = append(Cfg.Ports, Port{
+				Port:       *grpcPort,
+				Name:       "grpc",
+				TargetPort: *grpcPort,
+			})
+		}
+
 	}
 	Cfg.Image.Path = config.Get("image", "path").String(*image)
 	Cfg.Version = config.Get("version").String(*version)
