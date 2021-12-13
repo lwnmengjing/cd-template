@@ -18,7 +18,6 @@ import (
 
 func NewWorkloadChart(scope constructs.Construct, id string, props *cdk8s.ChartProps) cdk8s.Chart {
 	chart := cdk8s.NewChart(scope, jsii.String(id), props)
-	workloadName := config.Cfg.Service + "-" + config.Cfg.Version
 	ports := make([]*k8s.ContainerPort, 0)
 	//port
 	var samePort bool
@@ -34,13 +33,16 @@ func NewWorkloadChart(scope constructs.Construct, id string, props *cdk8s.ChartP
 		})
 	}
 	//env
-	env := make([]*k8s.EnvVar, len(config.Cfg.ImportEnvNames))
+	env := make([]*k8s.EnvVar, 0)
 	for i := range config.Cfg.ImportEnvNames {
+		if config.Cfg.ImportEnvNames[i] == "" {
+			continue
+		}
 		v := os.Getenv(config.Cfg.ImportEnvNames[i])
-		env[i] = &k8s.EnvVar{
+		env = append(env, &k8s.EnvVar{
 			Name:  &config.Cfg.ImportEnvNames[i],
 			Value: &v,
-		}
+		})
 	}
 	//config
 	volumeMounts := make([]*k8s.VolumeMount, 0)
@@ -100,7 +102,7 @@ func NewWorkloadChart(scope constructs.Construct, id string, props *cdk8s.ChartP
 	case "statefulset":
 		k8s.NewKubeStatefulSet(chart, jsii.String("statefulset"), &k8s.KubeStatefulSetProps{
 			Metadata: &k8s.ObjectMeta{
-				Name:      &workloadName,
+				Name:      &config.Cfg.Service,
 				Namespace: &config.Cfg.Namespace,
 				Labels:    props.Labels,
 			},
@@ -134,7 +136,7 @@ func NewWorkloadChart(scope constructs.Construct, id string, props *cdk8s.ChartP
 	default:
 		k8s.NewKubeDeployment(chart, jsii.String("deployment"), &k8s.KubeDeploymentProps{
 			Metadata: &k8s.ObjectMeta{
-				Name:      &workloadName,
+				Name:      &config.Cfg.Service,
 				Namespace: &config.Cfg.Namespace,
 				Labels:    props.Labels,
 			},

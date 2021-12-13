@@ -22,7 +22,7 @@ func NewHpaChart(scope constructs.Construct, id string, props *cdk8s.ChartProps)
 			MaxReplicas: jsii.Number(float64(config.Cfg.MaxReplicas)),
 			ScaleTargetRef: &k8s.CrossVersionObjectReferenceV2Beta2{
 				Kind:       jsii.String(config.Cfg.WorkloadType),
-				Name:       jsii.String(config.Cfg.Service + "-" + config.Cfg.Version),
+				Name:       jsii.String(config.Cfg.Service),
 				ApiVersion: jsii.String("apps/v1"),
 			},
 			Metrics: &[]*k8s.MetricSpecV2Beta2{
