@@ -44,6 +44,21 @@ func NewWorkloadChart(scope constructs.Construct, id string, props *cdk8s.ChartP
 			Value: &v,
 		})
 	}
+	env = append(env, &k8s.EnvVar{
+		Name: jsii.String("NODE_NAME"),
+		ValueFrom: &k8s.EnvVarSource{
+			FieldRef: &k8s.ObjectFieldSelector{
+				FieldPath: jsii.String("metadata.name"),
+			},
+		},
+	}, &k8s.EnvVar{
+		Name: jsii.String("STAGE"),
+		ValueFrom: &k8s.EnvVarSource{
+			FieldRef: &k8s.ObjectFieldSelector{
+				FieldPath: jsii.String("metadata.namespace"),
+			},
+		},
+	})
 	//config
 	volumeMounts := make([]*k8s.VolumeMount, 0)
 	volumes := make([]*k8s.Volume, 0)
