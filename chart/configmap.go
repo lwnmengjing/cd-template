@@ -43,10 +43,6 @@ func NewConfigmapChart(scope constructs.Construct, id string, props *cdk8s.Chart
 	}
 	cm := k8s.NewKubeConfigMap(chart, jsii.String("configmap"), &k8s.KubeConfigMapProps{
 		Data: &data,
-		Metadata: &k8s.ObjectMeta{
-			//Name:      &config.Cfg.ConfigData[i].Name,
-			Namespace: props.Namespace,
-		},
 	})
 	config.Cfg.ConfigData.Name = *cm.Name()
 	return chart

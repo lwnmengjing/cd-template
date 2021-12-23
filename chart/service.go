@@ -31,9 +31,8 @@ func NewServiceChart(scope constructs.Construct, id string, props *cdk8s.ChartPr
 
 	k8s.NewKubeService(chart, jsii.String("service"), &k8s.KubeServiceProps{
 		Metadata: &k8s.ObjectMeta{
-			Name:      &config.Cfg.Service,
-			Namespace: &config.Cfg.Namespace,
-			Labels:    props.Labels,
+			Name:   &config.Cfg.Service,
+			Labels: props.Labels,
 		},
 		Spec: &k8s.ServiceSpec{
 			Type:  jsii.String("ClusterIP"),
@@ -49,9 +48,8 @@ func NewServiceChart(scope constructs.Construct, id string, props *cdk8s.ChartPr
 	}
 	k8s.NewKubeServiceAccount(chart, jsii.String("service-account"), &k8s.KubeServiceAccountProps{
 		Metadata: &k8s.ObjectMeta{
-			Name:      jsii.String(config.Cfg.App + "-" + config.Cfg.Service),
-			Namespace: props.Namespace,
-			Labels:    props.Labels,
+			Name:   jsii.String(config.Cfg.App + "-" + config.Cfg.Service),
+			Labels: props.Labels,
 		},
 	})
 

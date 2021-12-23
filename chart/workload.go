@@ -101,7 +101,7 @@ func NewWorkloadChart(scope constructs.Construct, id string, props *cdk8s.ChartP
 					"cpu":    k8s.Quantity_FromString(&r.CPU),
 					"memory": k8s.Quantity_FromString(&r.Memory),
 				}
-			default:
+			case "requests":
 				resources.Requests = &map[string]k8s.Quantity{
 					"cpu":    k8s.Quantity_FromString(&r.CPU),
 					"memory": k8s.Quantity_FromString(&r.Memory),
@@ -117,9 +117,8 @@ func NewWorkloadChart(scope constructs.Construct, id string, props *cdk8s.ChartP
 	case "statefulset":
 		k8s.NewKubeStatefulSet(chart, jsii.String("statefulset"), &k8s.KubeStatefulSetProps{
 			Metadata: &k8s.ObjectMeta{
-				Name:      &config.Cfg.Service,
-				Namespace: &config.Cfg.Namespace,
-				Labels:    props.Labels,
+				Name:   &config.Cfg.Service,
+				Labels: props.Labels,
 			},
 			Spec: &k8s.StatefulSetSpec{
 				ServiceName: &config.Cfg.Service,
@@ -151,9 +150,8 @@ func NewWorkloadChart(scope constructs.Construct, id string, props *cdk8s.ChartP
 	default:
 		k8s.NewKubeDeployment(chart, jsii.String("deployment"), &k8s.KubeDeploymentProps{
 			Metadata: &k8s.ObjectMeta{
-				Name:      &config.Cfg.Service,
-				Namespace: &config.Cfg.Namespace,
-				Labels:    props.Labels,
+				Name:   &config.Cfg.Service,
+				Labels: props.Labels,
 			},
 			Spec: &k8s.DeploymentSpec{
 				Replicas: replicas,

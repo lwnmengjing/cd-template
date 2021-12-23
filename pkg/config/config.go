@@ -19,7 +19,6 @@ import (
 var Cfg Config
 
 type Config struct {
-	Namespace      string              `json:"namespace" yaml:"namespace"`
 	App            string              `json:"app" yaml:"app"`
 	Service        string              `json:"service" yaml:"service"`
 	Version        string              `json:"version" yaml:"version"`
@@ -75,7 +74,6 @@ type ConfigmapData struct {
 }
 
 var (
-	namespace       = flag.String("namespace", "default", "deploy namespace")
 	app             = flag.String("app", "", "application")
 	service         = flag.String("service", "", "service")
 	version         = flag.String("version", "v1", "service version")
@@ -88,6 +86,7 @@ var (
 	replicas        = flag.Uint("replicas", 1, "replicas")
 	workloadType    = flag.String("workloadType", "deployment", "workload type, e.g. deployment, statefulset")
 	hpa             = flag.Bool("hpa", false, "enable hpa")
+	metricsScrape   = flag.Bool("metricsScrape", false, "enable metrics export")
 )
 
 // NewConfig set config
@@ -108,7 +107,6 @@ func NewConfig(path *string) {
 		}
 	}
 
-	Cfg.Namespace = config.Get("namespace").String(*namespace)
 	Cfg.App = config.Get("app").String(*app)
 	Cfg.Service = config.Get("service").String(*service)
 	if len(Cfg.Ports) == 0 && (*httpPort > 0 || *grpcPort > 0) {
@@ -128,6 +126,9 @@ func NewConfig(path *string) {
 			})
 		}
 
+	}
+	if *metricsScrape {
+		Cfg.Metrics.Scrape = true
 	}
 	Cfg.Image.Path = config.Get("image", "path").String(*image)
 	Cfg.Version = config.Get("version").String(*version)
@@ -158,7 +159,7 @@ func NewConfig(path *string) {
 		Cfg.Hpa = *hpa
 	}
 
-	if len(Cfg.Resources) == 0 {
+	if len(Cfg.Resources) == 0 && Cfg.Hpa {
 		Cfg.Resources = map[string]Resource{
 			"limits": {
 				CPU:    "800m",

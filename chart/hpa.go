@@ -13,9 +13,8 @@ func NewHpaChart(scope constructs.Construct, id string, props *cdk8s.ChartProps)
 
 	k8s.NewKubeHorizontalPodAutoscalerV2Beta2(chart, jsii.String("hpa"), &k8s.KubeHorizontalPodAutoscalerV2Beta2Props{
 		Metadata: &k8s.ObjectMeta{
-			Labels:    props.Labels,
-			Name:      &config.Cfg.Service,
-			Namespace: props.Namespace,
+			Labels: props.Labels,
+			Name:   &config.Cfg.Service,
 		},
 		Spec: &k8s.HorizontalPodAutoscalerSpecV2Beta2{
 			MinReplicas: jsii.Number(float64(config.Cfg.Replicas)),
