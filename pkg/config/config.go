@@ -87,6 +87,7 @@ var (
 	workloadType    = flag.String("workloadType", "deployment", "workload type, e.g. deployment, statefulset")
 	hpa             = flag.Bool("hpa", false, "enable hpa")
 	metricsScrape   = flag.Bool("metricsScrape", false, "enable metrics export")
+	_               = flag.String("namespace", "", "")
 )
 
 // NewConfig set config
