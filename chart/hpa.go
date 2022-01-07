@@ -30,7 +30,7 @@ func NewHpaChart(scope constructs.Construct, id string, props *cdk8s.ChartProps)
 					Resource: &k8s.ResourceMetricSourceV2Beta2{
 						Name: jsii.String("memory"),
 						Target: &k8s.MetricTargetV2Beta2{
-							Type:               jsii.String("Value"),
+							Type:               jsii.String("AverageValue"),
 							AverageUtilization: jsii.Number(80),
 						},
 					},
@@ -40,7 +40,7 @@ func NewHpaChart(scope constructs.Construct, id string, props *cdk8s.ChartProps)
 					Resource: &k8s.ResourceMetricSourceV2Beta2{
 						Name: jsii.String("cpu"),
 						Target: &k8s.MetricTargetV2Beta2{
-							Type:               jsii.String("Value"),
+							Type:               jsii.String("AverageValue"),
 							AverageUtilization: jsii.Number(80),
 						},
 					},
