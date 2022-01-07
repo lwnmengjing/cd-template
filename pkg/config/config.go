@@ -163,12 +163,12 @@ func NewConfig(path *string) {
 	if len(Cfg.Resources) == 0 && Cfg.Hpa {
 		Cfg.Resources = map[string]Resource{
 			"limits": {
-				CPU:    "800m",
+				CPU:    "1",
 				Memory: "1Gi",
 			},
 			"requests": {
-				CPU:    "100m",
-				Memory: "200Mi",
+				CPU:    "200m",
+				Memory: "400Mi",
 			},
 		}
 	}
