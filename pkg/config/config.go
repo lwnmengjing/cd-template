@@ -164,7 +164,11 @@ func NewConfig(path *string) {
 		Cfg.Resources = map[string]Resource{
 			"limits": {
 				CPU:    "800m",
-				Memory: "800Mi",
+				Memory: "1Gi",
+			},
+			"requests": {
+				CPU:    "100m",
+				Memory: "200Mi",
 			},
 		}
 	}
