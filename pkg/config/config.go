@@ -167,8 +167,8 @@ func NewConfig(path *string) {
 				Memory: "1Gi",
 			},
 			"requests": {
-				CPU:    "200m",
-				Memory: "400Mi",
+				CPU:    "500m",
+				Memory: "800Mi",
 			},
 		}
 	}
