@@ -5,11 +5,11 @@ import (
 	"time"
 
 	_jsii_ "github.com/aws/jsii-runtime-go/runtime"
-	_init_ "github.com/lwnmengjing/cd-template-go/imports/k8s/jsii"
+	_init_ "github.com/lwnmengjing/cd-template/imports/k8s/jsii"
 
 	"github.com/aws/constructs-go/constructs/v3"
 	"github.com/cdk8s-team/cdk8s-core-go/cdk8s"
-	"github.com/lwnmengjing/cd-template-go/imports/k8s/internal"
+	"github.com/lwnmengjing/cd-template/imports/k8s/internal"
 )
 
 // Affinity is a group of affinity scheduling rules.

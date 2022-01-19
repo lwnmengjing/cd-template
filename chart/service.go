@@ -12,8 +12,8 @@ import (
 	"github.com/aws/jsii-runtime-go"
 	"github.com/cdk8s-team/cdk8s-core-go/cdk8s"
 
-	"github.com/lwnmengjing/cd-template-go/imports/k8s"
-	"github.com/lwnmengjing/cd-template-go/pkg/config"
+	"github.com/lwnmengjing/cd-template/imports/k8s"
+	"github.com/lwnmengjing/cd-template/pkg/config"
 )
 
 func NewServiceChart(scope constructs.Construct, id string, props *cdk8s.ChartProps) cdk8s.Chart {

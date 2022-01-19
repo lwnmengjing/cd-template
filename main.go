@@ -5,8 +5,8 @@ import (
 
 	"github.com/cdk8s-team/cdk8s-core-go/cdk8s"
 
-	"github.com/lwnmengjing/cd-template-go/chart"
-	"github.com/lwnmengjing/cd-template-go/pkg/config"
+	"github.com/lwnmengjing/cd-template/chart"
+	"github.com/lwnmengjing/cd-template/pkg/config"
 )
 
 var configPath = flag.String("config", "", "config path")
@@ -21,12 +21,22 @@ func main() {
 			"version": &config.Cfg.Version,
 		},
 	})
-	chart.NewConfigmapChart(app, config.Cfg.App+"-"+config.Cfg.Service+"-configmap", &cdk8s.ChartProps{
-		Labels: &map[string]*string{
-			"app":     &config.Cfg.Service,
-			"version": &config.Cfg.Version,
-		},
-	})
+	needConfigmap := false
+	if len(config.Cfg.Config) > 0 {
+		for i := range config.Cfg.Config {
+			if len(config.Cfg.Config[i].Data) > 0 {
+				needConfigmap = true
+			}
+		}
+	}
+	if needConfigmap {
+		chart.NewConfigmapChart(app, config.Cfg.App+"-"+config.Cfg.Service+"-configmap", &cdk8s.ChartProps{
+			Labels: &map[string]*string{
+				"app":     &config.Cfg.Service,
+				"version": &config.Cfg.Version,
+			},
+		})
+	}
 	chart.NewWorkloadChart(app, config.Cfg.App+"-"+config.Cfg.Service+"-workload", &cdk8s.ChartProps{
 		Labels: &map[string]*string{
 			"app":     &config.Cfg.Service,

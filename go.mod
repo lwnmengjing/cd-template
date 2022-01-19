@@ -1,4 +1,4 @@
-module github.com/lwnmengjing/cd-template-go
+module github.com/lwnmengjing/cd-template
 
 go 1.16
 

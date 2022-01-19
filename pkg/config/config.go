@@ -31,7 +31,7 @@ type Config struct {
 	Ports          []Port              `json:"ports" yaml:"ports"`
 	Metrics        Metrics             `json:"metrics" yaml:"metrics"`
 	ImportEnvNames []string            `json:"importEnvNames" yaml:"importEnvNames"`
-	ConfigData     ConfigmapData       `json:"configData" yaml:"configData"`
+	Config         []ConfigmapData     `json:"config" yaml:"config"`
 	WorkloadType   string              `json:"workloadType" yaml:"workloadType"`
 	Command        []*string           `json:"command" yaml:"command"`
 	Args           []*string           `json:"args" yaml:"args"`
@@ -83,6 +83,7 @@ var (
 	importEnvNames  = flag.String("importEnvNames", "", "import env names, split ','")
 	configDataFiles = flag.String("configDataFiles", "", "config data file path, multi split ','")
 	configPath      = flag.String("configPath", "", "application config path")
+	configmapName   = flag.String("configmapName", "", "exist configmap name")
 	replicas        = flag.Uint("replicas", 1, "replicas")
 	workloadType    = flag.String("workloadType", "deployment", "workload type, e.g. deployment, statefulset")
 	hpa             = flag.Bool("hpa", false, "enable hpa")
@@ -137,15 +138,22 @@ func NewConfig(path *string) {
 		Cfg.ImportEnvNames = strings.Split(*importEnvNames, ",")
 	}
 	if configDataFiles != nil && *configDataFiles != "" {
-		if Cfg.ConfigData.Data == nil {
-			Cfg.ConfigData.Data = make(map[string]string)
+		if Cfg.Config == nil {
+			Cfg.Config = make([]ConfigmapData, 0)
+		}
+		configData := ConfigmapData{
+			Data: make(map[string]string),
 		}
 		for _, p := range strings.Split(*configDataFiles, ",") {
-			Cfg.ConfigData.Data[filepath.Base(p)] = p
+			configData.Data[filepath.Base(p)] = p
 		}
 		if configPath != nil && *configPath != "" {
-			Cfg.ConfigData.Path = *configPath
+			configData.Path = *configPath
 		}
+		if configmapName != nil && *configmapName != "" {
+			configData.Name = *configmapName
+		}
+		Cfg.Config = append(Cfg.Config, configData)
 	}
 	if Cfg.Replicas < 1 {
 		Cfg.Replicas = *replicas

@@ -8,6 +8,7 @@
 package chart
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"strings"
@@ -15,35 +16,43 @@ import (
 	"github.com/aws/constructs-go/constructs/v3"
 	"github.com/aws/jsii-runtime-go"
 	"github.com/cdk8s-team/cdk8s-core-go/cdk8s"
-	"github.com/lwnmengjing/cd-template-go/imports/k8s"
-	"github.com/lwnmengjing/cd-template-go/pkg/config"
+	"github.com/lwnmengjing/cd-template/imports/k8s"
+	"github.com/lwnmengjing/cd-template/pkg/config"
 )
 
 func NewConfigmapChart(scope constructs.Construct, id string, props *cdk8s.ChartProps) cdk8s.Chart {
-	if len(config.Cfg.ConfigData.Data) == 0 {
+	if len(config.Cfg.Config) == 0 {
 		return nil
 	}
 
 	chart := cdk8s.NewChart(scope, jsii.String(id), props)
 
-	data := make(map[string]*string)
-	for path := range config.Cfg.ConfigData.Data {
-		if strings.Index(config.Cfg.ConfigData.Data[path], string(os.PathSeparator)) > -1 &&
-			strings.Index(config.Cfg.ConfigData.Data[path], "\n") == -1 {
-			//path
-			rb, err := os.ReadFile(config.Cfg.ConfigData.Data[path])
-			if err != nil {
-				log.Fatalf("read %s error, %s", config.Cfg.ConfigData.Data[path], err.Error())
-				return nil
-			}
-			data[path] = jsii.String(string(rb))
+	for i := range config.Cfg.Config {
+		if len(config.Cfg.Config[i].Data) == 0 {
 			continue
 		}
-		data[path] = jsii.String(config.Cfg.ConfigData.Data[path])
+		data := make(map[string]*string)
+		for path := range config.Cfg.Config[i].Data {
+			if strings.Index(config.Cfg.Config[i].Data[path], string(os.PathSeparator)) > -1 &&
+				strings.Index(config.Cfg.Config[i].Data[path], "\n") == -1 {
+				//path
+				rb, err := os.ReadFile(config.Cfg.Config[i].Data[path])
+				if err != nil {
+					log.Fatalf("read %s error, %s", config.Cfg.Config[i].Data[path], err.Error())
+					return nil
+				}
+				data[path] = jsii.String(string(rb))
+				continue
+			}
+			data[path] = jsii.String(config.Cfg.Config[i].Data[path])
+		}
+		if len(data) > 0 {
+			cm := k8s.NewKubeConfigMap(chart, jsii.String(fmt.Sprintf("%d", i)), &k8s.KubeConfigMapProps{
+				Data: &data,
+			})
+			config.Cfg.Config[i].Name = *cm.Name()
+
+		}
 	}
-	cm := k8s.NewKubeConfigMap(chart, jsii.String("configmap"), &k8s.KubeConfigMapProps{
-		Data: &data,
-	})
-	config.Cfg.ConfigData.Name = *cm.Name()
 	return chart
 }

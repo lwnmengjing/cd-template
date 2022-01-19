@@ -11,8 +11,8 @@ import (
 	"github.com/aws/constructs-go/constructs/v3"
 	"github.com/aws/jsii-runtime-go"
 	"github.com/cdk8s-team/cdk8s-core-go/cdk8s"
-	"github.com/lwnmengjing/cd-template-go/imports/k8s"
-	"github.com/lwnmengjing/cd-template-go/pkg/config"
+	"github.com/lwnmengjing/cd-template/imports/k8s"
+	"github.com/lwnmengjing/cd-template/pkg/config"
 	"os"
 )
 
@@ -62,20 +62,22 @@ func NewWorkloadChart(scope constructs.Construct, id string, props *cdk8s.ChartP
 	//config
 	volumeMounts := make([]*k8s.VolumeMount, 0)
 	volumes := make([]*k8s.Volume, 0)
-	if len(config.Cfg.ConfigData.Data) > 0 {
+	if len(config.Cfg.Config) > 0 {
 		readOnly := true
-		volumes = append(volumes, &k8s.Volume{
-			Name: &config.Cfg.ConfigData.Name,
-			ConfigMap: &k8s.ConfigMapVolumeSource{
-				Name: &config.Cfg.ConfigData.Name,
-			},
-		})
+		for i := range config.Cfg.Config {
+			volumes = append(volumes, &k8s.Volume{
+				Name: &config.Cfg.Config[i].Name,
+				ConfigMap: &k8s.ConfigMapVolumeSource{
+					Name: &config.Cfg.Config[i].Name,
+				},
+			})
 
-		volumeMounts = append(volumeMounts, &k8s.VolumeMount{
-			MountPath: &config.Cfg.ConfigData.Path,
-			Name:      &config.Cfg.ConfigData.Name,
-			ReadOnly:  &readOnly,
-		})
+			volumeMounts = append(volumeMounts, &k8s.VolumeMount{
+				MountPath: &config.Cfg.Config[i].Path,
+				Name:      &config.Cfg.Config[i].Name,
+				ReadOnly:  &readOnly,
+			})
+		}
 	}
 
 	var serviceAccountName *string
