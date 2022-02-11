@@ -14,22 +14,16 @@ import (
 	"github.com/lwnmengjing/cd-template/imports/k8s"
 	"github.com/lwnmengjing/cd-template/pkg/config"
 	"os"
+	"strconv"
 )
 
 func NewWorkloadChart(scope constructs.Construct, id string, props *cdk8s.ChartProps) cdk8s.Chart {
 	chart := cdk8s.NewChart(scope, jsii.String(id), props)
 	ports := make([]*k8s.ContainerPort, 0)
 	//port
-	var samePort bool
 	for i := range config.Cfg.Ports {
-		samePort = !config.Cfg.Metrics.Scrape || config.Cfg.Ports[i].Port == config.Cfg.Metrics.Port
 		ports = append(ports, &k8s.ContainerPort{
 			ContainerPort: jsii.Number(float64(config.Cfg.Ports[i].Port)),
-		})
-	}
-	if !samePort {
-		ports = append(ports, &k8s.ContainerPort{
-			ContainerPort: jsii.Number(float64(config.Cfg.Metrics.Port)),
 		})
 	}
 	//env
@@ -111,6 +105,12 @@ func NewWorkloadChart(scope constructs.Construct, id string, props *cdk8s.ChartP
 			}
 		}
 	}
+	annotations := make(map[string]*string)
+	if config.Cfg.Metrics.Scrape {
+		annotations["prometheus.io/scrape"] = jsii.String("true")
+		annotations["prometheus.io/port"] = jsii.String(strconv.Itoa(int(config.Cfg.Metrics.Port)))
+		annotations["prometheus.io/path"] = jsii.String(config.Cfg.Metrics.Path)
+	}
 	var replicas *float64
 	if !config.Cfg.Hpa {
 		replicas = jsii.Number(float64(config.Cfg.Replicas))
@@ -130,7 +130,8 @@ func NewWorkloadChart(scope constructs.Construct, id string, props *cdk8s.ChartP
 				},
 				Template: &k8s.PodTemplateSpec{
 					Metadata: &k8s.ObjectMeta{
-						Labels: props.Labels,
+						Labels:      props.Labels,
+						Annotations: &annotations,
 					},
 					Spec: &k8s.PodSpec{
 						ServiceAccountName: serviceAccountName,
@@ -162,7 +163,8 @@ func NewWorkloadChart(scope constructs.Construct, id string, props *cdk8s.ChartP
 				},
 				Template: &k8s.PodTemplateSpec{
 					Metadata: &k8s.ObjectMeta{
-						Labels: props.Labels,
+						Labels:      props.Labels,
+						Annotations: &annotations,
 					},
 					Spec: &k8s.PodSpec{
 						ServiceAccountName: serviceAccountName,

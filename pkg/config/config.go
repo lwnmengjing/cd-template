@@ -129,8 +129,14 @@ func NewConfig(path *string) {
 		}
 
 	}
-	if *metricsScrape {
+	if *metricsScrape || Cfg.Metrics.Scrape {
 		Cfg.Metrics.Scrape = true
+		if Cfg.Metrics.Port == 0 {
+			Cfg.Metrics.Port = 5000
+		}
+		if Cfg.Metrics.Path == "" {
+			Cfg.Metrics.Path = "/metrics"
+		}
 	}
 	Cfg.Image.Path = config.Get("image", "path").String(*image)
 	Cfg.Version = config.Get("version").String(*version)

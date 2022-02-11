@@ -23,8 +23,8 @@ ports:
     name: grpc
 metrics:
   scrape: true
-  path: /metrics
-  port: 8000
+#  path: /metrics
+#  port: 8000
 importEnvNames:
   - stage
   - other
