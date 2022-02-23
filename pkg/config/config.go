@@ -23,7 +23,7 @@ type Config struct {
 	Service        string              `json:"service" yaml:"service"`
 	Version        string              `json:"version" yaml:"version"`
 	Hpa            bool                `json:"hpa" yaml:"hpa"`
-	Resources      map[string]Resource `json:"resources" yaml:"resoures"`
+	Resources      map[string]Resource `json:"resources" yaml:"resources"`
 	Replicas       uint                `json:"replicas" yaml:"replicas"`
 	MaxReplicas    uint                `json:"maxReplicas" yaml:"maxReplicas"`
 	ServiceAccount bool                `json:"serviceAccount" yaml:"serviceAccount"`
