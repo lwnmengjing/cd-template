@@ -19,22 +19,23 @@ import (
 var Cfg Config
 
 type Config struct {
-	App            string              `json:"app" yaml:"app"`
-	Service        string              `json:"service" yaml:"service"`
-	Version        string              `json:"version" yaml:"version"`
-	Hpa            bool                `json:"hpa" yaml:"hpa"`
-	Resources      map[string]Resource `json:"resources" yaml:"resources"`
-	Replicas       uint                `json:"replicas" yaml:"replicas"`
-	MaxReplicas    uint                `json:"maxReplicas" yaml:"maxReplicas"`
-	ServiceAccount bool                `json:"serviceAccount" yaml:"serviceAccount"`
-	Image          Image               `json:"image" yaml:"image"`
-	Ports          []Port              `json:"ports" yaml:"ports"`
-	Metrics        Metrics             `json:"metrics" yaml:"metrics"`
-	ImportEnvNames []string            `json:"importEnvNames" yaml:"importEnvNames"`
-	Config         []ConfigmapData     `json:"config" yaml:"config"`
-	WorkloadType   string              `json:"workloadType" yaml:"workloadType"`
-	Command        []*string           `json:"command" yaml:"command"`
-	Args           []*string           `json:"args" yaml:"args"`
+	App                string              `json:"app" yaml:"app"`
+	Service            string              `json:"service" yaml:"service"`
+	Version            string              `json:"version" yaml:"version"`
+	Hpa                bool                `json:"hpa" yaml:"hpa"`
+	Resources          map[string]Resource `json:"resources" yaml:"resources"`
+	Replicas           uint                `json:"replicas" yaml:"replicas"`
+	MaxReplicas        uint                `json:"maxReplicas" yaml:"maxReplicas"`
+	ServiceAccount     bool                `json:"serviceAccount" yaml:"serviceAccount"`
+	ServiceAccountName string              `json:"serviceAccountName" yaml:"serviceAccountName"`
+	Image              Image               `json:"image" yaml:"image"`
+	Ports              []Port              `json:"ports" yaml:"ports"`
+	Metrics            Metrics             `json:"metrics" yaml:"metrics"`
+	ImportEnvNames     []string            `json:"importEnvNames" yaml:"importEnvNames"`
+	Config             []ConfigmapData     `json:"config" yaml:"config"`
+	WorkloadType       string              `json:"workloadType" yaml:"workloadType"`
+	Command            []*string           `json:"command" yaml:"command"`
+	Args               []*string           `json:"args" yaml:"args"`
 }
 
 type Resource struct {

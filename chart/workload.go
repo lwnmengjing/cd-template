@@ -78,6 +78,9 @@ func NewWorkloadChart(scope constructs.Construct, id string, props *cdk8s.ChartP
 	if config.Cfg.ServiceAccount {
 		serviceAccountName = jsii.String(config.Cfg.App + "-" + config.Cfg.Service)
 	}
+	if config.Cfg.ServiceAccountName != "" {
+		serviceAccountName = jsii.String(config.Cfg.ServiceAccountName)
+	}
 	var command *[]*string
 	if len(config.Cfg.Command) > 0 {
 
