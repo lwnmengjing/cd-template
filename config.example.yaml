@@ -37,3 +37,4 @@ configData:
       asdfkasjdfklajsd
       asdfasdfa
 workloadType: statefulset
+hpa: true
