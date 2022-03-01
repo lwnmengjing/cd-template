@@ -2,11 +2,8 @@ package main
 
 import (
 	"flag"
-
-	"github.com/cdk8s-team/cdk8s-core-go/cdk8s"
-
-	"github.com/lwnmengjing/cd-template/chart"
 	"github.com/lwnmengjing/cd-template/pkg/config"
+	"github.com/lwnmengjing/cd-template/stage"
 )
 
 var configPath = flag.String("config", "", "config path")
@@ -14,42 +11,9 @@ var configPath = flag.String("config", "", "config path")
 func main() {
 	flag.Parse()
 	config.NewConfig(configPath)
-	app := cdk8s.NewApp(nil)
-	chart.NewServiceChart(app, config.Cfg.App+"-"+config.Cfg.Service+"-service", &cdk8s.ChartProps{
-		Labels: &map[string]*string{
-			"app":     &config.Cfg.Service,
-			"version": &config.Cfg.Version,
-		},
-	})
-	needConfigmap := false
-	if len(config.Cfg.Config) > 0 {
-		for i := range config.Cfg.Config {
-			if len(config.Cfg.Config[i].Data) > 0 {
-				needConfigmap = true
-			}
-		}
-	}
-	if needConfigmap {
-		chart.NewConfigmapChart(app, config.Cfg.App+"-"+config.Cfg.Service+"-configmap", &cdk8s.ChartProps{
-			Labels: &map[string]*string{
-				"app":     &config.Cfg.Service,
-				"version": &config.Cfg.Version,
-			},
-		})
-	}
-	chart.NewWorkloadChart(app, config.Cfg.App+"-"+config.Cfg.Service+"-workload", &cdk8s.ChartProps{
-		Labels: &map[string]*string{
-			"app":     &config.Cfg.Service,
-			"version": &config.Cfg.Version,
-		},
-	})
-	if config.Cfg.Hpa {
-		chart.NewHpaChart(app, config.Cfg.App+"-"+config.Cfg.Service+"-hpa", &cdk8s.ChartProps{
-			Labels: &map[string]*string{
-				"app":     &config.Cfg.Service,
-				"version": &config.Cfg.Version,
-			},
-		})
-	}
-	app.Synth()
+	stage.Synth("prod")
+	config.Cfg.Hpa = false
+	config.Cfg.Resources = nil
+	stage.Synth("staging")
+	stage.Synth("beta")
 }

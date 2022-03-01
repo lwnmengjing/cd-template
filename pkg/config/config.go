@@ -25,6 +25,7 @@ type Config struct {
 	Hpa                bool                `json:"hpa" yaml:"hpa"`
 	Resources          map[string]Resource `json:"resources" yaml:"resources"`
 	Replicas           uint                `json:"replicas" yaml:"replicas"`
+	MinReplicas        uint                `json:"minReplicas" yaml:"minReplicas"`
 	MaxReplicas        uint                `json:"maxReplicas" yaml:"maxReplicas"`
 	ServiceAccount     bool                `json:"serviceAccount" yaml:"serviceAccount"`
 	ServiceAccountName string              `json:"serviceAccountName" yaml:"serviceAccountName"`
@@ -165,8 +166,11 @@ func NewConfig(path *string) {
 	if Cfg.Replicas < 1 {
 		Cfg.Replicas = *replicas
 	}
+	if Cfg.MinReplicas < 1 {
+		Cfg.MinReplicas = 3
+	}
 	if Cfg.MaxReplicas < Cfg.Replicas {
-		Cfg.MaxReplicas = Cfg.Replicas * 3
+		Cfg.MaxReplicas = 5
 	}
 	if workloadType != nil && (Cfg.WorkloadType == "" || *workloadType != "deployment") {
 		Cfg.WorkloadType = *workloadType
