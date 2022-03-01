@@ -14,5 +14,6 @@ func main() {
 	stage.Synth("prod")
 	config.Cfg.Hpa = false
 	config.Cfg.Resources = nil
+	stage.Synth("staging")
 	stage.Synth("beta")
 }
