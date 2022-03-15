@@ -12,6 +12,7 @@ func main() {
 	flag.Parse()
 	config.NewConfig(configPath)
 	stage.Synth("prod")
+	config.Cfg.Replicas = 1
 	config.Cfg.Hpa = false
 	config.Cfg.Resources = nil
 	stage.Synth("staging")
