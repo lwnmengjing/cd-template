@@ -17,4 +17,5 @@ func main() {
 	config.Cfg.Resources = nil
 	stage.Synth("staging")
 	stage.Synth("beta")
+	stage.Synth("uat")
 }
