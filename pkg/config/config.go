@@ -9,6 +9,7 @@ package config
 
 import (
 	"flag"
+	"io/ioutil"
 	"log"
 	"path/filepath"
 	"strings"
@@ -153,7 +154,11 @@ func NewConfig(path *string) {
 			Data: make(map[string]string),
 		}
 		for _, p := range strings.Split(*configDataFiles, ",") {
-			configData.Data[filepath.Base(p)] = p
+			rb, err := ioutil.ReadFile(p)
+			if err != nil {
+				log.Fatalln(err)
+			}
+			configData.Data[filepath.Base(p)] = string(rb)
 		}
 		if configPath != nil && *configPath != "" {
 			configData.Path = *configPath
