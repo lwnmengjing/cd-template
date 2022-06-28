@@ -38,6 +38,21 @@ type Config struct {
 	WorkloadType       string              `json:"workloadType" yaml:"workloadType"`
 	Command            []*string           `json:"command" yaml:"command"`
 	Args               []*string           `json:"args" yaml:"args"`
+	Containers         []Container         `json:"containers" yaml:"containers"`
+}
+
+type Container struct {
+	Image string          `json:"image" yaml:"image"`
+	Name  string          `json:"name" yaml:"name"`
+	Ports []ContainerPort `json:"ports" yaml:"ports"`
+}
+
+type ContainerPort struct {
+	Name          string `json:"name"`
+	HostIp        string `json:"hostIp"`
+	HostPort      uint   `json:"hostPort"`
+	ContainerPort uint   `json:"containerPort"`
+	Protocol      string `json:"protocol"`
 }
 
 type Resource struct {
@@ -168,6 +183,7 @@ func NewConfig(path *string) {
 		}
 		Cfg.Config = append(Cfg.Config, configData)
 	}
+	// TODO: 根据配置文件配置replicas数量
 	if Cfg.Replicas < 1 {
 		Cfg.Replicas = *replicas
 	}

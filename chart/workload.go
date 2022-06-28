@@ -26,6 +26,23 @@ func NewWorkloadChart(scope constructs.Construct, id string, props *cdk8s.ChartP
 			ContainerPort: jsii.Number(float64(config.Cfg.Ports[i].Port)),
 		})
 	}
+	// TODO: 增加多个container配置
+	//container
+	containers := make([]*k8s.Container, 0)
+	// FIXME: 判空
+	//if config.Cfg.Containers == "" {
+	//	continue
+	//}
+
+	for i := range config.Cfg.Containers {
+		containers = append(containers, &k8s.Container{
+			Name:  &config.Cfg.Containers[i].Name,
+			Image: &config.Cfg.Containers[i].Image,
+			// FIXME: ports
+			//Ports: &config.Cfg.Containers[i].Ports,
+		})
+	}
+
 	//env
 	env := make([]*k8s.EnvVar, 0)
 	for i := range config.Cfg.ImportEnvNames {
@@ -118,6 +135,18 @@ func NewWorkloadChart(scope constructs.Construct, id string, props *cdk8s.ChartP
 	if !config.Cfg.Hpa {
 		replicas = jsii.Number(float64(config.Cfg.Replicas))
 	}
+	// default container
+	containers = append(containers, &k8s.Container{
+		Name:         jsii.String(config.Cfg.Service),
+		Image:        jsii.String(config.Cfg.Image.String()),
+		Ports:        &ports,
+		Env:          &env,
+		VolumeMounts: &volumeMounts,
+		Command:      command,
+		Args:         args,
+		Resources:    &resources,
+	})
+
 	switch config.Cfg.WorkloadType {
 	case "statefulset":
 		k8s.NewKubeStatefulSet(chart, jsii.String("statefulset"), &k8s.KubeStatefulSetProps{
@@ -138,17 +167,8 @@ func NewWorkloadChart(scope constructs.Construct, id string, props *cdk8s.ChartP
 					},
 					Spec: &k8s.PodSpec{
 						ServiceAccountName: serviceAccountName,
-						Containers: &[]*k8s.Container{{
-							Name:         jsii.String(config.Cfg.Service),
-							Image:        jsii.String(config.Cfg.Image.String()),
-							Ports:        &ports,
-							Env:          &env,
-							VolumeMounts: &volumeMounts,
-							Command:      command,
-							Args:         args,
-							Resources:    &resources,
-						}},
-						Volumes: &volumes,
+						Containers:         &containers,
+						Volumes:            &volumes,
 					},
 				},
 			},
@@ -171,17 +191,8 @@ func NewWorkloadChart(scope constructs.Construct, id string, props *cdk8s.ChartP
 					},
 					Spec: &k8s.PodSpec{
 						ServiceAccountName: serviceAccountName,
-						Containers: &[]*k8s.Container{{
-							Name:         jsii.String(config.Cfg.Service),
-							Image:        jsii.String(config.Cfg.Image.String()),
-							Ports:        &ports,
-							Env:          &env,
-							VolumeMounts: &volumeMounts,
-							Command:      command,
-							Args:         args,
-							Resources:    &resources,
-						}},
-						Volumes: &volumes,
+						Containers:         &containers,
+						Volumes:            &volumes,
 					},
 				},
 			},
