@@ -53,6 +53,29 @@ func NewWorkloadChart(scope constructs.Construct, id string, props *cdk8s.ChartP
 			},
 		},
 	})
+	//container
+	containers := make([]*k8s.Container, 0)
+	if len(config.Cfg.Containers) > 0 {
+		for i := range config.Cfg.Containers {
+			containerPorts := make([]*k8s.ContainerPort, 0)
+			for j := range config.Cfg.Containers[i].Ports {
+				port := k8s.ContainerPort{
+					Name:          &config.Cfg.Containers[i].Ports[j].Name,
+					HostIp:        &config.Cfg.Containers[i].Ports[j].HostIp,
+					HostPort:      &config.Cfg.Containers[i].Ports[j].HostPort,
+					ContainerPort: &config.Cfg.Containers[i].Ports[j].HostPort,
+					Protocol:      &config.Cfg.Containers[i].Ports[j].Protocol,
+				}
+				containerPorts = append(containerPorts, &port)
+			}
+			containers = append(containers, &k8s.Container{
+				Name:  &config.Cfg.Containers[i].Name,
+				Image: &config.Cfg.Containers[i].Image,
+				Ports: &containerPorts,
+				Env:   &env,
+			})
+		}
+	}
 	//config
 	volumeMounts := make([]*k8s.VolumeMount, 0)
 	volumes := make([]*k8s.Volume, 0)
@@ -115,9 +138,21 @@ func NewWorkloadChart(scope constructs.Construct, id string, props *cdk8s.ChartP
 		annotations["prometheus.io/path"] = jsii.String(config.Cfg.Metrics.Path)
 	}
 	var replicas *float64
-	if !config.Cfg.Hpa {
+	if !config.Cfg.Hpa && config.Cfg.Replicas > 0 {
 		replicas = jsii.Number(float64(config.Cfg.Replicas))
 	}
+	// default container
+	containers = append(containers, &k8s.Container{
+		Name:         jsii.String(config.Cfg.Service),
+		Image:        jsii.String(config.Cfg.Image.String()),
+		Ports:        &ports,
+		Env:          &env,
+		VolumeMounts: &volumeMounts,
+		Command:      command,
+		Args:         args,
+		Resources:    &resources,
+	})
+
 	switch config.Cfg.WorkloadType {
 	case "statefulset":
 		k8s.NewKubeStatefulSet(chart, jsii.String("statefulset"), &k8s.KubeStatefulSetProps{
@@ -138,17 +173,8 @@ func NewWorkloadChart(scope constructs.Construct, id string, props *cdk8s.ChartP
 					},
 					Spec: &k8s.PodSpec{
 						ServiceAccountName: serviceAccountName,
-						Containers: &[]*k8s.Container{{
-							Name:         jsii.String(config.Cfg.Service),
-							Image:        jsii.String(config.Cfg.Image.String()),
-							Ports:        &ports,
-							Env:          &env,
-							VolumeMounts: &volumeMounts,
-							Command:      command,
-							Args:         args,
-							Resources:    &resources,
-						}},
-						Volumes: &volumes,
+						Containers:         &containers,
+						Volumes:            &volumes,
 					},
 				},
 			},
@@ -171,17 +197,8 @@ func NewWorkloadChart(scope constructs.Construct, id string, props *cdk8s.ChartP
 					},
 					Spec: &k8s.PodSpec{
 						ServiceAccountName: serviceAccountName,
-						Containers: &[]*k8s.Container{{
-							Name:         jsii.String(config.Cfg.Service),
-							Image:        jsii.String(config.Cfg.Image.String()),
-							Ports:        &ports,
-							Env:          &env,
-							VolumeMounts: &volumeMounts,
-							Command:      command,
-							Args:         args,
-							Resources:    &resources,
-						}},
-						Volumes: &volumes,
+						Containers:         &containers,
+						Volumes:            &volumes,
 					},
 				},
 			},

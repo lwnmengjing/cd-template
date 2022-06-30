@@ -3,6 +3,7 @@ service: deploy
 namespace: beta
 version: v1
 replicas: 1
+testReplicas: 2
 serviceAccount: false
 command:
   - test
@@ -38,3 +39,12 @@ configData:
       asdfasdfa
 workloadType: statefulset
 hpa: true
+containers:
+  - name: demo
+    image: demo:v1
+    ports:
+      - containerPort: 8888
+        hostIp: 0.0.0.0
+        hostPort: 8888
+        name: demo
+        protocol: TCP

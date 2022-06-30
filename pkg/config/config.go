@@ -26,6 +26,7 @@ type Config struct {
 	Hpa                bool                `json:"hpa" yaml:"hpa"`
 	Resources          map[string]Resource `json:"resources" yaml:"resources"`
 	Replicas           uint                `json:"replicas" yaml:"replicas"`
+	TestReplicas       uint                `json:"testReplicas" yaml:"testReplicas"`
 	MinReplicas        uint                `json:"minReplicas" yaml:"minReplicas"`
 	MaxReplicas        uint                `json:"maxReplicas" yaml:"maxReplicas"`
 	ServiceAccount     bool                `json:"serviceAccount" yaml:"serviceAccount"`
@@ -38,6 +39,21 @@ type Config struct {
 	WorkloadType       string              `json:"workloadType" yaml:"workloadType"`
 	Command            []*string           `json:"command" yaml:"command"`
 	Args               []*string           `json:"args" yaml:"args"`
+	Containers         []Container         `json:"containers" yaml:"containers"`
+}
+
+type Container struct {
+	Image string          `json:"image" yaml:"image"`
+	Name  string          `json:"name" yaml:"name"`
+	Ports []ContainerPort `json:"ports" yaml:"ports"`
+}
+
+type ContainerPort struct {
+	Name          string  `json:"name"`
+	HostIp        string  `json:"hostIp"`
+	HostPort      float64 `json:"hostPort"`
+	ContainerPort float64 `json:"containerPort"`
+	Protocol      string  `json:"protocol"`
 }
 
 type Resource struct {
