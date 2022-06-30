@@ -183,7 +183,6 @@ func NewConfig(path *string) {
 		}
 		Cfg.Config = append(Cfg.Config, configData)
 	}
-	// TODO: 根据配置文件配置replicas数量
 	if Cfg.Replicas < 1 {
 		Cfg.Replicas = *replicas
 	}
