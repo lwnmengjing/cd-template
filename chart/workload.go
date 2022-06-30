@@ -26,23 +26,28 @@ func NewWorkloadChart(scope constructs.Construct, id string, props *cdk8s.ChartP
 			ContainerPort: jsii.Number(float64(config.Cfg.Ports[i].Port)),
 		})
 	}
-	// TODO: 增加多个container配置
 	//container
 	containers := make([]*k8s.Container, 0)
-	// FIXME: 判空
-	//if config.Cfg.Containers == "" {
-	//	continue
-	//}
-
-	for i := range config.Cfg.Containers {
-		containers = append(containers, &k8s.Container{
-			Name:  &config.Cfg.Containers[i].Name,
-			Image: &config.Cfg.Containers[i].Image,
-			// FIXME: ports
-			//Ports: &config.Cfg.Containers[i].Ports,
-		})
+	if len(config.Cfg.Containers) > 0 {
+		for i := range config.Cfg.Containers {
+			containerPorts := make([]*k8s.ContainerPort, 0)
+			for j := range config.Cfg.Containers[i].Ports {
+				port := k8s.ContainerPort{
+					Name:          &config.Cfg.Containers[i].Ports[j].Name,
+					HostIp:        &config.Cfg.Containers[i].Ports[j].HostIp,
+					HostPort:      &config.Cfg.Containers[i].Ports[j].HostPort,
+					ContainerPort: &config.Cfg.Containers[i].Ports[j].HostPort,
+					Protocol:      &config.Cfg.Containers[i].Ports[j].Protocol,
+				}
+				containerPorts = append(containerPorts, &port)
+			}
+			containers = append(containers, &k8s.Container{
+				Name:  &config.Cfg.Containers[i].Name,
+				Image: &config.Cfg.Containers[i].Image,
+				Ports: &containerPorts,
+			})
+		}
 	}
-
 	//env
 	env := make([]*k8s.EnvVar, 0)
 	for i := range config.Cfg.ImportEnvNames {

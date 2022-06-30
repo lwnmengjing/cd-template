@@ -48,11 +48,11 @@ type Container struct {
 }
 
 type ContainerPort struct {
-	Name          string `json:"name"`
-	HostIp        string `json:"hostIp"`
-	HostPort      uint   `json:"hostPort"`
-	ContainerPort uint   `json:"containerPort"`
-	Protocol      string `json:"protocol"`
+	Name          string  `json:"name"`
+	HostIp        string  `json:"hostIp"`
+	HostPort      float64 `json:"hostPort"`
+	ContainerPort float64 `json:"containerPort"`
+	Protocol      string  `json:"protocol"`
 }
 
 type Resource struct {
