@@ -3,6 +3,7 @@ service: deploy
 namespace: beta
 version: v1
 replicas: 1
+testReplicas: 2
 serviceAccount: false
 command:
   - test
