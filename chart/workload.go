@@ -26,28 +26,6 @@ func NewWorkloadChart(scope constructs.Construct, id string, props *cdk8s.ChartP
 			ContainerPort: jsii.Number(float64(config.Cfg.Ports[i].Port)),
 		})
 	}
-	//container
-	containers := make([]*k8s.Container, 0)
-	if len(config.Cfg.Containers) > 0 {
-		for i := range config.Cfg.Containers {
-			containerPorts := make([]*k8s.ContainerPort, 0)
-			for j := range config.Cfg.Containers[i].Ports {
-				port := k8s.ContainerPort{
-					Name:          &config.Cfg.Containers[i].Ports[j].Name,
-					HostIp:        &config.Cfg.Containers[i].Ports[j].HostIp,
-					HostPort:      &config.Cfg.Containers[i].Ports[j].HostPort,
-					ContainerPort: &config.Cfg.Containers[i].Ports[j].HostPort,
-					Protocol:      &config.Cfg.Containers[i].Ports[j].Protocol,
-				}
-				containerPorts = append(containerPorts, &port)
-			}
-			containers = append(containers, &k8s.Container{
-				Name:  &config.Cfg.Containers[i].Name,
-				Image: &config.Cfg.Containers[i].Image,
-				Ports: &containerPorts,
-			})
-		}
-	}
 	//env
 	env := make([]*k8s.EnvVar, 0)
 	for i := range config.Cfg.ImportEnvNames {
@@ -75,6 +53,29 @@ func NewWorkloadChart(scope constructs.Construct, id string, props *cdk8s.ChartP
 			},
 		},
 	})
+	//container
+	containers := make([]*k8s.Container, 0)
+	if len(config.Cfg.Containers) > 0 {
+		for i := range config.Cfg.Containers {
+			containerPorts := make([]*k8s.ContainerPort, 0)
+			for j := range config.Cfg.Containers[i].Ports {
+				port := k8s.ContainerPort{
+					Name:          &config.Cfg.Containers[i].Ports[j].Name,
+					HostIp:        &config.Cfg.Containers[i].Ports[j].HostIp,
+					HostPort:      &config.Cfg.Containers[i].Ports[j].HostPort,
+					ContainerPort: &config.Cfg.Containers[i].Ports[j].HostPort,
+					Protocol:      &config.Cfg.Containers[i].Ports[j].Protocol,
+				}
+				containerPorts = append(containerPorts, &port)
+			}
+			containers = append(containers, &k8s.Container{
+				Name:  &config.Cfg.Containers[i].Name,
+				Image: &config.Cfg.Containers[i].Image,
+				Ports: &containerPorts,
+				Env:   &env,
+			})
+		}
+	}
 	//config
 	volumeMounts := make([]*k8s.VolumeMount, 0)
 	volumes := make([]*k8s.Volume, 0)
