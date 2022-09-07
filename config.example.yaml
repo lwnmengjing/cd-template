@@ -1,6 +1,7 @@
 app: cd
 service: deploy
 namespace: beta
+project: cd-template
 version: v1
 replicas: 1
 testReplicas: 2

@@ -16,6 +16,7 @@ func Synth(stage string) {
 		Labels: &map[string]*string{
 			"app":     &config.Cfg.Service,
 			"version": &config.Cfg.Version,
+			"project": &config.Cfg.Project,
 		},
 	})
 	needConfigmap := false
@@ -31,6 +32,7 @@ func Synth(stage string) {
 			Labels: &map[string]*string{
 				"app":     &config.Cfg.Service,
 				"version": &config.Cfg.Version,
+				"project": &config.Cfg.Project,
 			},
 		})
 	}
@@ -38,6 +40,7 @@ func Synth(stage string) {
 		Labels: &map[string]*string{
 			"app":     &config.Cfg.Service,
 			"version": &config.Cfg.Version,
+			"project": &config.Cfg.Project,
 		},
 	})
 	if config.Cfg.Hpa {
@@ -45,6 +48,7 @@ func Synth(stage string) {
 			Labels: &map[string]*string{
 				"app":     &config.Cfg.Service,
 				"version": &config.Cfg.Version,
+				"project": &config.Cfg.Project,
 			},
 		})
 	}

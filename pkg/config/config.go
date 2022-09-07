@@ -21,6 +21,7 @@ var Cfg Config
 
 type Config struct {
 	App                string              `json:"app" yaml:"app"`
+	Project            string              `json:"project" yaml:"project"`
 	Service            string              `json:"service" yaml:"service"`
 	Version            string              `json:"version" yaml:"version"`
 	Hpa                bool                `json:"hpa" yaml:"hpa"`
@@ -94,6 +95,7 @@ type ConfigmapData struct {
 
 var (
 	app             = flag.String("app", "", "application")
+	project         = flag.String("project", "", "project")
 	service         = flag.String("service", "", "service")
 	version         = flag.String("version", "v1", "service version")
 	httpPort        = flag.Uint("httpPort", 0, "http server listen port")
@@ -130,6 +132,7 @@ func NewConfig(path *string) {
 
 	Cfg.App = config.Get("app").String(*app)
 	Cfg.Service = config.Get("service").String(*service)
+	Cfg.Project = config.Get("project").String(*project)
 	if len(Cfg.Ports) == 0 && (*httpPort > 0 || *grpcPort > 0) {
 		Cfg.Ports = make([]Port, 0)
 		if *httpPort > 0 {
