@@ -12,13 +12,22 @@ import (
 // Synth chart generate
 func Synth(stage string) {
 	app := cdk8s.NewApp(&cdk8s.AppProps{Outdir: jsii.String(filepath.Join("dist", stage))})
-	chart.NewServiceChart(app, config.Cfg.App+"-"+config.Cfg.Service+"-service", &cdk8s.ChartProps{
+	chartProps := &cdk8s.ChartProps{
 		Labels: &map[string]*string{
 			"app":     &config.Cfg.Service,
 			"version": &config.Cfg.Version,
-			"project": &config.Cfg.Project,
 		},
-	})
+	}
+	if &config.Cfg.Project != nil && *&config.Cfg.Project != "" {
+		chartProps = &cdk8s.ChartProps{
+			Labels: &map[string]*string{
+				"app":     &config.Cfg.Service,
+				"version": &config.Cfg.Version,
+				"project": &config.Cfg.Project,
+			},
+		}
+	}
+	chart.NewServiceChart(app, config.Cfg.App+"-"+config.Cfg.Service+"-service", chartProps)
 	needConfigmap := false
 	if len(config.Cfg.Config) > 0 {
 		for i := range config.Cfg.Config {
@@ -28,29 +37,11 @@ func Synth(stage string) {
 		}
 	}
 	if needConfigmap {
-		chart.NewConfigmapChart(app, config.Cfg.App+"-"+config.Cfg.Service+"-configmap", &cdk8s.ChartProps{
-			Labels: &map[string]*string{
-				"app":     &config.Cfg.Service,
-				"version": &config.Cfg.Version,
-				"project": &config.Cfg.Project,
-			},
-		})
+		chart.NewConfigmapChart(app, config.Cfg.App+"-"+config.Cfg.Service+"-configmap", chartProps)
 	}
-	chart.NewWorkloadChart(app, config.Cfg.App+"-"+config.Cfg.Service+"-workload", &cdk8s.ChartProps{
-		Labels: &map[string]*string{
-			"app":     &config.Cfg.Service,
-			"version": &config.Cfg.Version,
-			"project": &config.Cfg.Project,
-		},
-	})
+	chart.NewWorkloadChart(app, config.Cfg.App+"-"+config.Cfg.Service+"-workload", chartProps)
 	if config.Cfg.Hpa {
-		chart.NewHpaChart(app, config.Cfg.App+"-"+config.Cfg.Service+"-hpa", &cdk8s.ChartProps{
-			Labels: &map[string]*string{
-				"app":     &config.Cfg.Service,
-				"version": &config.Cfg.Version,
-				"project": &config.Cfg.Project,
-			},
-		})
+		chart.NewHpaChart(app, config.Cfg.App+"-"+config.Cfg.Service+"-hpa", chartProps)
 	}
 	app.Synth()
 }
